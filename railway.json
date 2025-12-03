@@ -1,0 +1,13 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "nixpacks"
+  },
+  "deploy": {
+    "numReplicas": 1,
+    "startCommand": "npx http-server dist -p $PORT -g",
+    "restartPolicyMaxRetries": 5,
+    "healthcheckPath": "/",
+    "healthcheckTimeout": 30
+  }
+}
