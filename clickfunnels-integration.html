@@ -1,0 +1,411 @@
+<!-- ClickFunnels Integration Code for Vapi AI Assistant -->
+<!-- Add this code to your ClickFunnels page in the Custom Code section -->
+
+<!-- STEP 1: Add this to your page HEAD or Custom CSS section -->
+<style>
+    .vapi-chat-widget {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        z-index: 9999;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        color: white;
+        font-size: 30px;
+        font-weight: bold;
+    }
+
+    .vapi-chat-widget:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+    }
+
+    .vapi-chat-widget.active {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+
+    .vapi-status-indicator {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        width: 20px;
+        height: 20px;
+        background: #4ade80;
+        border: 3px solid white;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.6;
+        }
+    }
+
+    .vapi-modal {
+        position: fixed;
+        bottom: 100px;
+        right: 20px;
+        width: 380px;
+        max-width: 90vw;
+        height: 500px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+        z-index: 9998;
+        opacity: 0;
+        transform: scale(0.95) translateY(20px);
+        transition: all 0.3s ease;
+        pointer-events: none;
+    }
+
+    .vapi-modal.show {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        pointer-events: auto;
+    }
+
+    .vapi-modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px 12px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .vapi-modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    .vapi-close-btn {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .vapi-modal-body {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        background: #f9fafb;
+    }
+
+    .vapi-message {
+        margin-bottom: 15px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .vapi-message.user {
+        justify-content: flex-end;
+    }
+
+    .vapi-message-content {
+        background: white;
+        padding: 12px 16px;
+        border-radius: 8px;
+        max-width: 70%;
+        word-wrap: break-word;
+        line-height: 1.4;
+    }
+
+    .vapi-message.user .vapi-message-content {
+        background: #667eea;
+        color: white;
+    }
+
+    .vapi-message.assistant .vapi-message-content {
+        background: white;
+        border: 1px solid #e5e7eb;
+        color: #333;
+    }
+
+    .vapi-modal-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        gap: 10px;
+    }
+
+    .vapi-input {
+        flex: 1;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 10px 12px;
+        font-size: 14px;
+        font-family: inherit;
+    }
+
+    .vapi-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .vapi-send-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        transition: transform 0.2s;
+    }
+
+    .vapi-send-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .vapi-send-btn:active {
+        transform: translateY(0);
+    }
+
+    @media (max-width: 480px) {
+        .vapi-modal {
+            width: 100%;
+            height: 100vh;
+            bottom: 0;
+            right: 0;
+            border-radius: 0;
+        }
+
+        .vapi-modal-body {
+            height: calc(100vh - 140px);
+        }
+    }
+</style>
+
+<!-- STEP 2: Add this code to your page BODY (Custom HTML section) -->
+<div id="vapi-widget-container">
+    <button class="vapi-chat-widget" id="vapi-chat-btn" onclick="toggleVapiModal()">
+        💬
+        <div class="vapi-status-indicator"></div>
+    </button>
+
+    <div class="vapi-modal" id="vapi-modal">
+        <div class="vapi-modal-header">
+            <h3>Chat with AI Assistant</h3>
+            <button class="vapi-close-btn" onclick="toggleVapiModal()">✕</button>
+        </div>
+        <div class="vapi-modal-body" id="vapi-messages"></div>
+        <div class="vapi-modal-footer">
+            <input
+                type="text"
+                class="vapi-input"
+                id="vapi-user-input"
+                placeholder="Type your message..."
+                onkeypress="handleVapiKeyPress(event)"
+            >
+            <button class="vapi-send-btn" onclick="sendVapiMessage()">📤</button>
+        </div>
+    </div>
+</div>
+
+<!-- STEP 3: Add this JavaScript code -->
+<script src="https://cdn.jsdelivr.net/npm/@vapi-ai/web@latest"></script>
+<script>
+    // ===== CONFIGURATION =====
+    const VAPI_CONFIG = {
+        publicKey: 'REPLACE_WITH_YOUR_VAPI_PUBLIC_KEY', // Get from Vapi Dashboard
+        assistantId: '5287ce68-f609-4105-bd2e-d7732062ef74', // Your agent ID
+    };
+
+    // ===== VAPI INSTANCE =====
+    let vapi = null;
+    let isVapiReady = false;
+
+    // Initialize Vapi on page load
+    function initializeVapi() {
+        try {
+            vapi = new Vapi({
+                apiKey: VAPI_CONFIG.publicKey,
+            });
+
+            if (!vapi) {
+                console.error('Failed to initialize Vapi');
+                return;
+            }
+
+            isVapiReady = true;
+            setupVapiListeners();
+            console.log('Vapi initialized successfully');
+        } catch (error) {
+            console.error('Error initializing Vapi:', error);
+            showVapiError('Failed to initialize AI assistant');
+        }
+    }
+
+    // Setup event listeners
+    function setupVapiListeners() {
+        vapi.on('call-start', () => {
+            console.log('Call started');
+            addVapiMessage('assistant', 'Connected! How can I help you today?');
+        });
+
+        vapi.on('call-end', () => {
+            console.log('Call ended');
+            addVapiMessage('assistant', 'Chat ended. Feel free to start a new conversation!');
+        });
+
+        vapi.on('error', (error) => {
+            console.error('Vapi error:', error);
+            showVapiError('An error occurred. Please try again.');
+        });
+    }
+
+    // ===== UI FUNCTIONS =====
+    function toggleVapiModal() {
+        const modal = document.getElementById('vapi-modal');
+        const btn = document.getElementById('vapi-chat-btn');
+
+        modal.classList.toggle('show');
+        btn.classList.toggle('active');
+
+        if (modal.classList.contains('show')) {
+            document.getElementById('vapi-user-input').focus();
+            if (!isVapiReady) {
+                initializeVapi();
+                startVapiCall();
+            }
+        }
+    }
+
+    function addVapiMessage(role, content) {
+        const messagesContainer = document.getElementById('vapi-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `vapi-message ${role}`;
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'vapi-message-content';
+        contentDiv.textContent = content;
+
+        messageDiv.appendChild(contentDiv);
+        messagesContainer.appendChild(messageDiv);
+
+        // Auto-scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function showVapiError(message) {
+        addVapiMessage('assistant', `❌ ${message}`);
+    }
+
+    function sendVapiMessage() {
+        const input = document.getElementById('vapi-user-input');
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        // Add user message to UI
+        addVapiMessage('user', message);
+        input.value = '';
+
+        if (!isVapiReady) {
+            showVapiError('AI assistant is not ready. Please refresh and try again.');
+            return;
+        }
+
+        // Send message through Vapi (if it supports text input)
+        // Note: This is a display-only implementation
+        // For full functionality, you may need to use Vapi's API directly
+        console.log('User message:', message);
+
+        // Simulate assistant response (in real implementation, this comes from Vapi)
+        setTimeout(() => {
+            addVapiMessage('assistant', 'I received your message. Say something to start a voice conversation!');
+        }, 500);
+    }
+
+    function handleVapiKeyPress(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendVapiMessage();
+        }
+    }
+
+    async function startVapiCall() {
+        try {
+            if (!isVapiReady || !vapi) {
+                console.error('Vapi not initialized');
+                showVapiError('AI assistant not ready');
+                return;
+            }
+
+            await vapi.start({
+                assistantId: VAPI_CONFIG.assistantId,
+            });
+
+            console.log('Call started successfully');
+        } catch (error) {
+            console.error('Error starting call:', error);
+            showVapiError('Failed to start conversation');
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('ClickFunnels Vapi Widget loaded');
+    });
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        if (vapi) {
+            try {
+                vapi.stop();
+            } catch (e) {
+                console.log('Vapi already stopped');
+            }
+        }
+    });
+</script>
+
+<!-- ===== INTEGRATION INSTRUCTIONS ===== -->
+<!--
+HOW TO ADD THIS TO YOUR CLICKFUNNELS PAGE:
+
+1. Go to your ClickFunnels page editor
+2. Add a new "Custom Code" element or section
+3. Copy the <style> section above and paste it in the CSS section
+4. Copy the <div id="vapi-widget-container"> section and paste it in your HTML/Body
+5. Copy the <script> sections and paste in your JavaScript section
+6. Replace 'REPLACE_WITH_YOUR_VAPI_PUBLIC_KEY' with your actual Vapi public key
+   - Get this from: Vapi Dashboard → Project Settings → API Keys
+7. Save and publish your ClickFunnels page
+8. The chat widget will appear in the bottom-right corner
+
+IMPORTANT:
+- Make sure you have a Vapi account and an active phone number
+- The assistant ID is already set to your "custom url again" agent
+- Users will need to grant microphone permission for voice calls
+- This creates a floating chat button on your page
+-->

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - Custom LLM Agent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .feature {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature h3 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .feature p {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .cta-section {
+            text-align: center;
+            background: #f0f3ff;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .cta-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .agent-info {
+            background: white;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .agent-info p {
+            color: #666;
+            margin: 10px 0;
+            font-size: 0.95em;
+        }
+
+        .agent-info strong {
+            color: #667eea;
+        }
+
+        #vapi-container {
+            margin-top: 30px;
+            min-height: 400px;
+        }
+
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #999;
+            border-top: 1px solid #e0e0e0;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Assistant</h1>
+            <p>Powered by Advanced Custom LLM Technology</p>
+        </div>
+
+        <div class="content">
+            <div class="features">
+                <div class="feature">
+                    <h3>⚡ Instant Responses</h3>
+                    <p>Get immediate answers to your questions with our intelligent AI assistant.</p>
+                </div>
+                <div class="feature">
+                    <h3>🎯 Accurate Information</h3>
+                    <p>Powered by state-of-the-art language models for precise and helpful responses.</p>
+                </div>
+                <div class="feature">
+                    <h3>💬 Natural Conversation</h3>
+                    <p>Interact naturally as if you're talking to a knowledgeable human expert.</p>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <h2>Chat with Our AI Assistant</h2>
+                <p style="margin-bottom: 20px; color: #666;">Click the button below to start a conversation with our intelligent AI assistant</p>
+                <button class="cta-button" onclick="startVapiCall()">Start Chat Now</button>
+            </div>
+
+            <div id="vapi-container"></div>
+
+            <div class="agent-info">
+                <p><strong>Agent ID:</strong> 5287ce68-f609-4105-bd2e-d7732062ef74</p>
+                <p><strong>Technology:</strong> Custom LLM Server (GPT-3.5-turbo)</p>
+                <p><strong>Voice:</strong> Natural AI Voice (11Labs)</p>
+                <p><strong>Status:</strong> ✅ Active and Ready</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 AI Assistant. Powered by Vapi &amp; Custom LLM Server. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Vapi Web SDK - Official Pattern -->
+    <script src="https://cdn.jsdelivr.net/npm/@vapi-ai/web@latest"></script>
+    <script>
+        /**
+         * Vapi Configuration
+         * Environment variables are loaded from .env file (via build process)
+         * DO NOT hardcode API keys or sensitive data
+         */
+
+        // Get configuration from environment or use fallback
+        const VAPI_PUBLIC_KEY = import.meta.env.VITE_VAPI_PUBLIC_KEY || 'VAPI_PUBLIC_KEY_HERE';
+        const ASSISTANT_ID = import.meta.env.VITE_ASSISTANT_ID || '5287ce68-f609-4105-bd2e-d7732062ef74';
+
+        // Validate configuration on page load
+        function validateConfiguration() {
+            if (!VAPI_PUBLIC_KEY || VAPI_PUBLIC_KEY === 'VAPI_PUBLIC_KEY_HERE') {
+                console.error('❌ Vapi configuration error: VITE_VAPI_PUBLIC_KEY is not set');
+                document.body.innerHTML += '<div style="background: #fee; padding: 20px; margin: 20px; border: 1px solid #f00; border-radius: 8px;"><strong>⚠️ Configuration Error:</strong> Please add your Vapi Public Key to the .env file. See the README for instructions.</div>';
+                return false;
+            }
+            return true;
+        }
+
+        // Initialize Vapi instance using official SDK pattern
+        let vapi = null;
+
+        function initializeVapi() {
+            if (!validateConfiguration()) return;
+
+            try {
+                vapi = new Vapi({
+                    apiKey: VAPI_PUBLIC_KEY,
+                });
+
+                setupVapiListeners();
+                console.log('✅ Vapi initialized successfully');
+            } catch (error) {
+                console.error('❌ Failed to initialize Vapi:', error);
+                alert('Failed to initialize AI assistant. Please check your configuration.');
+            }
+        }
+
+        // Setup event listeners following Vapi official patterns
+        function setupVapiListeners() {
+            // Call started
+            vapi.on('call-start', () => {
+                console.log('📞 Call started');
+                const statusEl = document.querySelector('.cta-section p');
+                if (statusEl) statusEl.style.color = '#22c55e';
+            });
+
+            // Call ended
+            vapi.on('call-end', () => {
+                console.log('📞 Call ended');
+                const statusEl = document.querySelector('.cta-section p');
+                if (statusEl) statusEl.style.color = '#666';
+            });
+
+            // Call failed
+            vapi.on('error', (error) => {
+                console.error('❌ Vapi error:', error);
+                alert(`Error: ${error.message || 'An error occurred'}`);
+            });
+
+            // Message events (optional)
+            vapi.on('message', (message) => {
+                console.log('💬 Message:', message);
+            });
+
+            // Volume update events (optional)
+            vapi.on('volume-level', (level) => {
+                console.log('🔊 Volume level:', level);
+            });
+        }
+
+        /**
+         * Start a call using official Vapi SDK pattern
+         * @async
+         */
+        async function startVapiCall() {
+            if (!vapi) {
+                try {
+                    initializeVapi();
+                } catch (error) {
+                    console.error('Failed to initialize Vapi:', error);
+                    return;
+                }
+            }
+
+            try {
+                console.log('Starting call with assistant:', ASSISTANT_ID);
+
+                // Start call using official SDK pattern
+                await vapi.start({
+                    assistantId: ASSISTANT_ID,
+                    // Optional: Add custom configuration
+                    variableValues: {
+                        // You can pass custom variables to your assistant here
+                    },
+                });
+
+                console.log('✅ Call started successfully');
+            } catch (error) {
+                console.error('❌ Error starting call:', error);
+                alert(`Failed to start call: ${error.message || 'Unknown error'}`);
+            }
+        }
+
+        /**
+         * Stop the current call
+         * Follows official Vapi SDK pattern
+         */
+        async function stopVapiCall() {
+            if (!vapi) return;
+
+            try {
+                await vapi.stop();
+                console.log('✅ Call stopped');
+            } catch (error) {
+                console.error('❌ Error stopping call:', error);
+            }
+        }
+
+        // Initialize Vapi when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Vapi Agent Website loaded');
+            validateConfiguration();
+            // Don't initialize Vapi until user clicks the button
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (vapi && typeof vapi.stop === 'function') {
+                try {
+                    vapi.stop();
+                } catch (e) {
+                    console.log('Vapi already stopped');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
