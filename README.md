@@ -4,20 +4,16 @@ Complete setup guide for deploying your AI agent on a website and integrating wi
 
 ## 📋 What You Have
 
-✅ **Custom LLM Server**
-- Deployed on Railway at: `https://vapi-custom-llm-server-production.up.railway.app`
-- Powered by OpenAI GPT-3.5-turbo
-- Fully functional `/chat/completions` endpoint
-
 ✅ **Vapi Agent**
-- Agent ID: `5287ce68-f609-4105-bd2e-d7732062ef74`
-- Name: "custom url again"
-- Status: Active and Ready
+- Configure at: https://dashboard.vapi.ai/assistants
+- Status: Ready to deploy
+- Works with any LLM provider (OpenAI, Anthropic, etc.)
 
 ✅ **Website**
 - Beautiful responsive design
 - Integrated Vapi chat functionality
 - Mobile-optimized interface
+- Environment variable configuration
 
 ✅ **ClickFunnels Integration**
 - Floating chat widget
@@ -28,72 +24,83 @@ Complete setup guide for deploying your AI agent on a website and integrating wi
 
 ## 🚀 Quick Start Setup
 
-### Step 1: Get Your Vapi Public Key
+### Step 1: Create Your Vapi Agent
 
 1. Go to [Vapi Dashboard](https://dashboard.vapi.ai)
-2. Navigate to **Project Settings** → **API Keys**
-3. Copy your **Public Key** (starts with `public_`)
-4. Keep this safe - you'll need it for both the website and ClickFunnels
+2. Create a new assistant
+3. Configure your LLM provider (OpenAI, Claude, etc.)
+4. Set up voice (11Labs, Azure, etc.)
+5. Copy your **Assistant ID**
 
-### Step 2: Update the Website
+### Step 2: Get Your Vapi Public Key
 
-Open `index.html` and replace:
-```javascript
-apiKey: 'VAPI_PUBLIC_KEY_HERE'
-```
+1. Navigate to **Project Settings** → **API Keys**
+2. Copy your **Public Key** (starts with `public_`)
+3. Keep this safe - you'll need it for both the website and ClickFunnels
 
-With your actual public key:
-```javascript
-apiKey: 'public_xxxxxxxxxxxxxx'
-```
+### Step 3: Configure the Website
 
-### Step 3: Update ClickFunnels Integration
+1. Copy `.env.example` to `.env.local`
+2. Update with your values:
+   ```
+   VITE_VAPI_PUBLIC_KEY=public_xxxxxxxxxxxxxxxxxxxxx
+   VITE_ASSISTANT_ID=your-assistant-id-here
+   ```
+
+3. Deploy or test locally:
+   ```bash
+   npm install
+   npm run dev      # Local testing
+   npm run build    # Production build
+   ```
+
+### Step 4: Update ClickFunnels Integration
 
 Open `clickfunnels-integration.html` and replace:
 ```javascript
 publicKey: 'REPLACE_WITH_YOUR_VAPI_PUBLIC_KEY'
+assistantId: 'REPLACE_WITH_YOUR_ASSISTANT_ID'
 ```
 
-With your actual public key:
-```javascript
-publicKey: 'public_xxxxxxxxxxxxxx'
-```
+With your actual values from Vapi.
 
 ---
 
 ## 📱 Website Deployment
 
-### Option A: Deploy on Netlify (Recommended - Free & Easy)
+### Deploy on Railway (Recommended)
 
-1. **Prepare Files**
-   - Make sure `index.html` is updated with your Vapi public key
-   - Create a folder with just `index.html`
+Railway automatically deploys from GitHub:
 
-2. **Deploy**
-   - Go to [Netlify](https://netlify.com)
-   - Sign in with GitHub/Google
-   - Drag and drop your folder to deploy
-   - Get your live URL instantly
+1. **Push to GitHub**
+   - Repository: https://github.com/klogins-hash/vapi-agent-website
+   - Push your `.env.local` values to Railway environment
 
-3. **Test**
-   - Click "Start Chat Now" button
-   - Grant microphone access
-   - Have a conversation with your AI agent
+2. **Create Railway Project**
+   - Connect your GitHub repo
+   - Set environment variables in Railway dashboard
+   - Auto-deploys on each push
 
-### Option B: Deploy on Vercel
+3. **Get Your Live URL**
+   - Railway provides a live URL instantly
+   - Your agent is now live!
 
-1. Create a GitHub repository with your `index.html`
-2. Go to [Vercel](https://vercel.com)
-3. Import your repository
+### Deploy on Netlify (Free Alternative)
+
+1. Create `.env.local` with your Vapi keys
+2. Go to [Netlify](https://netlify.com)
+3. Connect GitHub repository
+4. Set build command: `npm run build`
+5. Set publish directory: `dist`
+6. Deploy!
+
+### Deploy on Vercel
+
+1. Go to [Vercel](https://vercel.com)
+2. Import your GitHub repository
+3. Set environment variables
 4. Deploy automatically
 5. Your site goes live instantly
-
-### Option C: Self-Hosted
-
-1. Upload `index.html` to your web server
-2. Update DNS to point to your server
-3. Access your website
-4. The agent will work immediately
 
 ---
 
@@ -122,12 +129,13 @@ publicKey: 'public_xxxxxxxxxxxxxx'
    - Copy all `<script>` sections
    - Paste into the **JavaScript** section of your custom code
 
-6. **Update Your Public Key**
+6. **Update Your Configuration**
    - In the JavaScript section, find:
      ```javascript
      publicKey: 'REPLACE_WITH_YOUR_VAPI_PUBLIC_KEY'
+     assistantId: 'REPLACE_WITH_YOUR_ASSISTANT_ID'
      ```
-   - Replace with your actual Vapi public key
+   - Replace with your actual Vapi values
 
 7. **Save & Publish**
    - Save your page
@@ -174,13 +182,6 @@ Replace `💬` with any emoji you prefer:
 - ⚡ Lightning
 - 🔮 Crystal Ball
 
-### Change Agent Instructions
-
-In `index.html` or `clickfunnels-integration.html`, update the assistant message:
-```javascript
-addVapiMessage('assistant', 'Your custom message here!');
-```
-
 ### Customize Chat Window Size
 
 In CSS, modify:
@@ -208,54 +209,6 @@ In CSS, modify:
 
 ---
 
-## 🔌 API Endpoints Reference
-
-Your custom LLM server provides these endpoints:
-
-### Main Endpoint
-```
-POST https://vapi-custom-llm-server-production.up.railway.app/chat/completions
-```
-
-**Request:**
-```json
-{
-  "messages": [
-    {"role": "system", "content": "You are a helpful assistant."},
-    {"role": "user", "content": "Hello!"}
-  ],
-  "model": "gpt-3.5-turbo",
-  "temperature": 0.7,
-  "max_tokens": 100
-}
-```
-
-**Response:**
-```json
-{
-  "choices": [{
-    "message": {
-      "role": "assistant",
-      "content": "Hello! How can I help you?"
-    },
-    "finish_reason": "stop"
-  }],
-  "model": "gpt-3.5-turbo-0125",
-  "usage": {
-    "prompt_tokens": 15,
-    "completion_tokens": 10,
-    "total_tokens": 25
-  }
-}
-```
-
-### Health Check
-```
-GET https://vapi-custom-llm-server-production.up.railway.app/health
-```
-
----
-
 ## 🛠️ Troubleshooting
 
 ### Issue: Chat button doesn't appear
@@ -263,7 +216,7 @@ GET https://vapi-custom-llm-server-production.up.railway.app/health
 **Solution:**
 - Clear browser cache (Ctrl+Shift+Delete)
 - Check browser console for errors (F12)
-- Verify your Vapi public key is correct
+- Verify your Vapi API keys are correct
 - Make sure JavaScript is enabled
 
 ### Issue: Microphone permission denied
@@ -277,71 +230,36 @@ GET https://vapi-custom-llm-server-production.up.railway.app/health
 ### Issue: "Failed to initialize AI assistant"
 
 **Solution:**
-- Your Vapi public key is incorrect
-- Vapi account may have billing issues
-- Check your Vapi dashboard for active phone numbers
-- Ensure your agent is properly configured
+- Your Vapi public key is incorrect (should start with `public_`)
+- Check your Vapi dashboard for active assistants
+- Verify agent is properly configured
+- Ensure assistant ID matches your created agent
 
 ### Issue: Responses are slow
 
 **Solution:**
-- Check your OpenAI API key balance
+- Check your LLM provider credits/balance
 - Verify network connection
-- Large requests may take longer
-- Use shorter max_tokens if needed
+- Try reloading the page
+- Some LLMs take longer to respond
 
 ### Issue: Chat works locally but not on production
 
 **Solution:**
 - Make sure you're using HTTPS (not HTTP)
 - Check CORS settings if accessing from different domain
-- Verify Vapi public key is for production
+- Verify Vapi keys are correctly set in deployment environment
 - Clear browser cache and cookies
-
----
-
-## 📊 Agent Configuration
-
-Your current agent uses these settings:
-
-```json
-{
-  "id": "5287ce68-f609-4105-bd2e-d7732062ef74",
-  "name": "custom url again",
-  "model": {
-    "provider": "custom-llm",
-    "model": "null",
-    "url": "https://vapi-custom-llm-server-production.up.railway.app"
-  },
-  "voice": {
-    "provider": "11labs",
-    "voiceId": "Elliot",
-    "model": "eleven_turbo_v2_5"
-  },
-  "transcriber": {
-    "provider": "deepgram",
-    "model": "nova-2"
-  }
-}
-```
-
-### To Modify Agent Settings:
-
-1. Go to [Vapi Dashboard](https://dashboard.vapi.ai)
-2. Select your agent
-3. Edit settings:
-   - Change voice
-   - Modify system prompt
-   - Adjust transcriber
-   - Change model parameters
 
 ---
 
 ## 🚀 Advanced Features
 
-### Add Custom Instructions
+### Customize Agent Instructions
 
-Edit your agent's system prompt in Vapi Dashboard:
+1. Go to [Vapi Dashboard](https://dashboard.vapi.ai)
+2. Select your agent
+3. Edit system prompt:
 
 ```
 You are a helpful customer support assistant for [Your Company].
@@ -352,54 +270,58 @@ You help customers with:
 - Account management
 
 Always be professional and helpful.
-If you don't know something, offer to connect them with someone who can help.
 ```
 
-### Connect to CRM
+### Switch LLM Providers
 
-Your custom LLM server includes database logging:
+In Vapi Dashboard, you can easily switch between:
+- OpenAI (GPT-4, GPT-3.5-turbo)
+- Anthropic (Claude)
+- Google (Gemini)
+- Others
 
-```
-API Endpoint: https://vapi-custom-llm-server-production.up.railway.app/interactions
-```
+### Change Voice Provider
 
-View all conversations and extract leads/data.
-
-### Monitor Usage
-
-Check API stats:
-```
-GET https://vapi-custom-llm-server-production.up.railway.app/interactions/stats
-```
+Options include:
+- 11Labs (most natural)
+- Azure (enterprise)
+- Google (cloud)
+- PlayHT
+- Others
 
 ---
 
-## 📞 Support
+## 📞 Resources
 
 - **Vapi Docs:** https://docs.vapi.ai
+- **Vapi Dashboard:** https://dashboard.vapi.ai
 - **Vapi Discord:** https://discord.gg/pUFNcf2WmH
-- **Your Custom LLM Server:** `/health` endpoint for status
 
 ---
 
 ## 📝 Files Included
 
-- `index.html` - Standalone website with embedded chat
-- `clickfunnels-integration.html` - ClickFunnels integration code + instructions
+- `index.html` - Main website with embedded chat
+- `main.js` - Vapi initialization and controls
+- `clickfunnels-integration.html` - ClickFunnels widget code + instructions
+- `.env.example` - Environment variable template
+- `vite.config.js` - Build configuration
+- `package.json` - Dependencies and scripts
+- `railway.json` - Railway deployment config
 - `README.md` - This file
 
 ---
 
 ## ✨ Next Steps
 
-1. ✅ Get your Vapi Public Key
-2. ✅ Update both HTML files with your key
-3. ✅ Deploy website (Netlify/Vercel)
-4. ✅ Add to ClickFunnels
-5. ✅ Test thoroughly
-6. ✅ Monitor analytics
+1. ✅ Create a Vapi agent at https://dashboard.vapi.ai
+2. ✅ Get your Vapi Public Key and Assistant ID
+3. ✅ Update `.env.local` with your credentials
+4. ✅ Deploy website (Railway/Netlify/Vercel)
+5. ✅ Add to ClickFunnels
+6. ✅ Test thoroughly
 7. ✅ Customize as needed
 
 ---
 
-**Ready to go live? Start with adding your Vapi Public Key!**
+**Ready to go live? Create your Vapi agent and add your credentials!**
